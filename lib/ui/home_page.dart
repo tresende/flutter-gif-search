@@ -23,7 +23,6 @@ class _HomePageState extends State<HomePage> {
     String search;
     String url;
     http.Response response;
-    print(env);
     if (search == null) {
       url = TRENDING_URL;
       url = SEARCH_URL.replaceFirst('_KEY', env['GIPHY_KEY']);
@@ -97,11 +96,15 @@ class _HomePageState extends State<HomePage> {
       padding: EdgeInsets.all(10),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2, crossAxisSpacing: 10, mainAxisSpacing: 10),
-      itemCount: 4,
+      itemCount: snapshot.data["data"].length,
       itemBuilder: (context, index) {
         return GestureDetector(
-          child: Image.network(null),
-        )
+          child: Image.network(
+            snapshot.data["data"][index]["images"]["fixed_height"]["url"],
+            height: 300,
+            fit: BoxFit.cover,
+          ),
+        );
       },
     );
   }
@@ -109,8 +112,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _getGifs().then((map) {
-      print(map);
-    });
+    _getGifs();
   }
 }
