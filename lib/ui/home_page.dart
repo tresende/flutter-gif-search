@@ -18,9 +18,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String search;
+  int offset = 0;
+  int limit = 19;
+
   Map env = DotEnv().env;
   Future<Map> _getGifs() async {
-    String search;
     String url;
     http.Response response;
     if (search == null) {
@@ -29,10 +32,10 @@ class _HomePageState extends State<HomePage> {
       response = await http.get(url);
     } else {
       url = SEARCH_URL;
-      url = SEARCH_URL.replaceFirst('_KEY', env['GIPHY_KEY']);
-      url = SEARCH_URL.replaceFirst('_QUERY_TEXT', 'Teste');
-      url = SEARCH_URL.replaceFirst('_LIMIT', '25');
-      url = SEARCH_URL.replaceFirst('_OFFSET', '0');
+      url = url.replaceFirst('_KEY', env['GIPHY_KEY']);
+      url = url.replaceFirst('_QUERY_TEXT', search);
+      url = url.replaceFirst('_LIMIT', limit.toString());
+      url = url.replaceFirst('_OFFSET', offset.toString());
       response = await http.get(url);
     }
     return json.decode(response.body);
@@ -53,6 +56,12 @@ class _HomePageState extends State<HomePage> {
             child: TextField(
               style: TextStyle(color: Colors.white, fontSize: 18),
               textAlign: TextAlign.center,
+              onSubmitted: (text) {
+                setState(() {
+                  this.search = text;
+                  this.offset = 0;
+                });
+              },
               decoration: InputDecoration(
                 labelText: 'Pesquise aqui',
                 labelStyle: TextStyle(
@@ -91,20 +100,49 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  int _getCount(List data) {
+    if (search == null) return data.length;
+    return data.length + 1;
+  }
+
   Widget _createGifTable(BuildContext context, AsyncSnapshot snapshot) {
+    var itens = snapshot.data["data"];
     return GridView.builder(
       padding: EdgeInsets.all(10),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2, crossAxisSpacing: 10, mainAxisSpacing: 10),
-      itemCount: snapshot.data["data"].length,
+      itemCount: _getCount(itens),
       itemBuilder: (context, index) {
-        return GestureDetector(
-          child: Image.network(
-            snapshot.data["data"][index]["images"]["fixed_height"]["url"],
-            height: 300,
-            fit: BoxFit.cover,
-          ),
-        );
+        if (search == null || index < itens.length) {
+          return GestureDetector(
+            child: Image.network(
+              itens[index]["images"]["fixed_height"]["url"],
+              height: 300,
+              fit: BoxFit.cover,
+            ),
+          );
+        } else {
+          return Container(
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  offset += 15;
+                });
+              },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Icon(Icons.add, color: Colors.white, size: 70),
+                  Text(
+                    "Carregar Mais",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white, fontSize: 18),
+                  )
+                ],
+              ),
+            ),
+          );
+        }
       },
     );
   }
