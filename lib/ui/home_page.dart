@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_gif_search/ui/gif_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -115,6 +116,13 @@ class _HomePageState extends State<HomePage> {
       itemBuilder: (context, index) {
         if (search == null || index < itens.length) {
           return GestureDetector(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) =>
+                          GifPage(itens[index])));
+            },
             child: Image.network(
               itens[index]["images"]["fixed_height"]["url"],
               height: 300,
