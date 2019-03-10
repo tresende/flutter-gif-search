@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gif_search/ui/gif_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 const String TRENDING_URL =
     'https://api.giphy.com/v1/gifs/trending?api_key=_KEY&limit=20&rating=G';
@@ -123,8 +124,9 @@ class _HomePageState extends State<HomePage> {
                       builder: (BuildContext context) =>
                           GifPage(itens[index])));
             },
-            child: Image.network(
-              itens[index]["images"]["fixed_height"]["url"],
+            child: FadeInImage.memoryNetwork(
+              placeholder: kTransparentImage,
+              image: itens[index]["images"]["fixed_height"]["url"],
               height: 300,
               fit: BoxFit.cover,
             ),
